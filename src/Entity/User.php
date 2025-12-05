@@ -41,10 +41,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: RefreshToken::class, mappedBy: 'user', cascade: ['remove'])]
     private Collection $refreshTokens;
 
+    #[ORM\OneToMany(targetEntity: 'App\Entity\Account', mappedBy: 'user', cascade: ['remove'])]
+    private Collection $accounts;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->refreshTokens = new ArrayCollection();
+        $this->accounts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -161,6 +165,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPassword(): string
     {
         return $this->passwordHash;
+    }
+
+    /**
+     * @return Collection<int, Account>
+     */
+    public function getAccounts(): Collection
+    {
+        return $this->accounts;
     }
 
     public function eraseCredentials(): void
