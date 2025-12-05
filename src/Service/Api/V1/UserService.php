@@ -6,59 +6,84 @@ namespace App\Service\Api\V1;
 
 use App\Dto\Api\V1\UserDto;
 use App\Exception\Api\UserNotFoundException;
+use App\Repository\UserRepository;
 
 class UserService
 {
     public function __construct(
-        // Inject dependencies like EntityManager, repositories, etc.
+        private readonly UserRepository $userRepository
     ) {
     }
 
     public function findAll(int $page = 1, int $limit = 10): array
     {
-        // TODO: Implement pagination logic with repository
-        // $offset = ($page - 1) * $limit;
-        // return $this->userRepository->findBy([], null, $limit, $offset);
+        $users = $this->userRepository->findWithPagination($page, $limit);
         
-        return []; // Mock return
+        return array_map(function($user) {
+            return new UserDto(
+                id: $user->getId(),
+                name: $user->getName(),
+                email: $user->getEmail(),
+                username: $user->getActualUsername(),
+                createdAt: $user->getCreatedAt()
+            );
+        }, $users);
     }
 
     public function findById(int $id): UserDto
     {
-        // TODO: Implement user finding logic
-        // $user = $this->userRepository->find($id);
-        // if (!$user) {
-        //     throw new UserNotFoundException("User with ID {$id} not found");
-        // }
+        $user = $this->userRepository->find($id);
+        if (!$user) {
+            throw new UserNotFoundException("User with ID {$id} not found");
+        }
         
-        // return UserDto::fromEntity($user);
-        
-        throw new UserNotFoundException("User with ID {$id} not found");
+        return new UserDto(
+            id: $user->getId(),
+            name: $user->getName(),
+            email: $user->getEmail(),
+            username: $user->getActualUsername(),
+            createdAt: $user->getCreatedAt()
+        );
     }
 
     public function create(array $data): UserDto
     {
-        // TODO: Implement user creation logic
-        // Validate, create entity, persist, etc.
+        $user = $this->userRepository->createUser($data);
         
-        return new UserDto(); // Mock return
+        return new UserDto(
+            id: $user->getId(),
+            name: $user->getName(),
+            email: $user->getEmail(),
+            username: $user->getActualUsername(),
+            createdAt: $user->getCreatedAt()
+        );
     }
 
     public function update(int $id, array $data): UserDto
     {
-        // TODO: Implement user update logic
+        $user = $this->userRepository->updateUser($id, $data);
         
-        return new UserDto(); // Mock return
+        return new UserDto(
+            id: $user->getId(),
+            name: $user->getName(),
+            email: $user->getEmail(),
+            username: $user->getActualUsername(),
+            createdAt: $user->getCreatedAt()
+        );
     }
 
     public function delete(int $id): void
     {
-        // TODO: Implement user deletion logic
+        $user = $this->userRepository->find($id);
+        if (!$user) {
+            throw new UserNotFoundException("User with ID {$id} not found");
+        }
+        
+        $this->userRepository->deleteUser($user);
     }
 
     public function getTotalCount(): int
     {
-        // TODO: Return total count from repository
-        return 0;
+        return $this->userRepository->getTotalUserCount();
     }
 }
