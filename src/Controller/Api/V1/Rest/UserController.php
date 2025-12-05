@@ -24,8 +24,6 @@ class UserController extends BaseV1Controller
     #[Route('', name: 'list', methods: ['GET'])]
     public function list(Request $request): JsonResponse
     {
-        echo 'Users List V1';
-        exit;
         $page = max(1, (int) $request->query->get('page', 1));
         $limit = min(100, max(1, (int) $request->query->get('limit', 10)));
 

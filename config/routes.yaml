@@ -7,6 +7,10 @@
 # To list all registered routes, run the following command:
 #   bin/console debug:router
 
+# Import Auth routes
+auth:
+    resource: routes/auth.yaml
+
 # Import API v1 routes
 api_v1:
     resource: routes/api_v1.yaml
