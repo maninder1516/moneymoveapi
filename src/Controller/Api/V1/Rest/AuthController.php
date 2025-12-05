@@ -47,7 +47,11 @@ class AuthController extends BaseV1Controller
         $user = new User();
         $user->setName($data['name']);
         $user->setEmail($data['email']);
-        $user->setUsername($data['username'] ?? $data['email']);
+        
+        // Only set username if provided
+        if (!empty($data['username'])) {
+            $user->setUsername($data['username']);
+        }
         
         // Hash password
         $hashedPassword = $this->passwordHasher->hashPassword($user, $data['password']);
@@ -75,7 +79,7 @@ class AuthController extends BaseV1Controller
                     'id' => $user->getId(),
                     'name' => $user->getName(),
                     'email' => $user->getEmail(),
-                    'username' => $user->getUsername(),
+                    'username' => $user->getActualUsername(),
                     'created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s')
                 ]
             ]

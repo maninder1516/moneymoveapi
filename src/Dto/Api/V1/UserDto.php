@@ -10,6 +10,7 @@ readonly class UserDto
         public ?int $id = null,
         public ?string $name = null,
         public ?string $email = null,
+        public ?string $username = null,
         public ?\DateTimeInterface $createdAt = null
     ) {
     }
@@ -20,6 +21,7 @@ readonly class UserDto
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'username' => $this->username,
             'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
         ];
     }
@@ -30,6 +32,7 @@ readonly class UserDto
             id: $data['id'] ?? null,
             name: $data['name'] ?? '',
             email: $data['email'] ?? '',
+            username: $data['username'] ?? null,
             createdAt: isset($data['created_at']) ? new \DateTime($data['created_at']) : null
         );
     }

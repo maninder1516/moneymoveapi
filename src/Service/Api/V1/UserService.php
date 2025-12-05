@@ -24,6 +24,7 @@ class UserService
                 id: $user->getId(),
                 name: $user->getName(),
                 email: $user->getEmail(),
+                username: $user->getActualUsername(),
                 createdAt: $user->getCreatedAt()
             );
         }, $users);
@@ -40,6 +41,7 @@ class UserService
             id: $user->getId(),
             name: $user->getName(),
             email: $user->getEmail(),
+            username: $user->getActualUsername(),
             createdAt: $user->getCreatedAt()
         );
     }
@@ -52,6 +54,7 @@ class UserService
             id: $user->getId(),
             name: $user->getName(),
             email: $user->getEmail(),
+            username: $user->getActualUsername(),
             createdAt: $user->getCreatedAt()
         );
     }
@@ -64,6 +67,7 @@ class UserService
             id: $user->getId(),
             name: $user->getName(),
             email: $user->getEmail(),
+            username: $user->getActualUsername(),
             createdAt: $user->getCreatedAt()
         );
     }

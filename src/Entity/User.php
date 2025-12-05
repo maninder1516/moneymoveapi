@@ -14,9 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: 'App\Repository\UserRepository')]
 #[ORM\Table(name: 'users')]
-#[ORM\UniqueConstraint(name: 'UNIQ_USERNAME', columns: ['username'])]
 #[ORM\UniqueConstraint(name: 'UNIQ_EMAIL', columns: ['email'])]
-#[UniqueEntity(fields: ['username'], message: 'Username already exists')]
 #[UniqueEntity(fields: ['email'], message: 'Email already exists')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -28,8 +26,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     private string $name;
 
-    #[ORM\Column(type: Types::STRING, length: 50, unique: true, nullable: false)]
-    private string $username;
+    #[ORM\Column(type: Types::STRING, length: 50, nullable: true)]
+    private ?string $username = null;
 
     #[ORM\Column(type: Types::STRING, length: 150, unique: true, nullable: false)]
     private string $email;
@@ -70,7 +68,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    public function setUsername(string $username): static
+    public function getActualUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(?string $username): static
     {
         $this->username = $username;
         return $this;
