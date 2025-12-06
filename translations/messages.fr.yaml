@@ -1,0 +1,28 @@
+# French translations for API messages
+account:
+  not_found: "Compte non trouvé"
+  not_found_or_access_denied: "Compte non trouvé ou accès refusé"
+  not_found_with_id: "Compte avec l'ID %id% non trouvé"
+  insufficient_balance: "Solde insuffisant du compte"
+  balance_cannot_be_negative: "Le solde ne peut pas être négatif"
+  amount_must_be_positive: "Le montant doit être positif"
+  unsupported_currency: "Devise non supportée: %currency%"
+  failed_to_generate_account_number: "Échec de la génération d'un numéro de compte unique après plusieurs tentatives"
+  
+user:
+  email_already_exists: "Un utilisateur avec cet email existe déjà"
+  missing_required_fields: "Champs requis manquants: %fields%"
+  validation_failed: "Validation échouée: %errors%"
+  registered_successfully: "Utilisateur enregistré avec succès"
+  invalid_credentials: "Identifiants invalides"
+
+transaction:
+  processing_started: "Traitement de transaction commencé"
+  completed_successfully: "Transaction terminée avec succès"
+  validation_failed: "Validation échouée: %errors%"
+  
+validation:
+  to_account_required: "Le numéro de compte de destination est requis"
+  from_account_required: "Le numéro de compte source est requis"
+  amount_required: "Le montant est requis"
+  amount_invalid: "Format de montant invalide"

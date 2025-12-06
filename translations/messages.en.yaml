@@ -1,0 +1,28 @@
+# English translations for API messages
+account:
+  not_found: "Account not found"
+  not_found_or_access_denied: "Account not found or access denied"
+  not_found_with_id: "Account with ID %id% not found"
+  insufficient_balance: "Insufficient account balance"
+  balance_cannot_be_negative: "Balance cannot be negative"
+  amount_must_be_positive: "Amount must be positive"
+  unsupported_currency: "Unsupported currency: %currency%"
+  failed_to_generate_account_number: "Failed to generate unique account number after multiple attempts"
+  
+user:
+  email_already_exists: "User with this email already exists"
+  missing_required_fields: "Missing required fields: %fields%"
+  validation_failed: "Validation failed: %errors%"
+  registered_successfully: "User registered successfully"
+  invalid_credentials: "Invalid credentials"
+
+transaction:
+  processing_started: "Transaction processing started"
+  completed_successfully: "Transaction completed successfully"
+  validation_failed: "Validation failed: %errors%"
+  
+validation:
+  to_account_required: "To account number is required"
+  from_account_required: "From account number is required"
+  amount_required: "Amount is required"
+  amount_invalid: "Invalid amount format"

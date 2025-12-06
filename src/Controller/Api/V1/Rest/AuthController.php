@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Route('/auth', name: 'auth_')]
 class AuthController extends BaseV1Controller
@@ -21,7 +22,8 @@ class AuthController extends BaseV1Controller
         ApiConfigService $apiConfig,
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPasswordHasherInterface $passwordHasher,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
+        private readonly TranslatorInterface $translator
     ) {
         parent::__construct($apiConfig);
     }
@@ -32,7 +34,10 @@ class AuthController extends BaseV1Controller
         $data = json_decode($request->getContent(), true);
         
         if (!$data || !isset($data['email'], $data['password'], $data['name'])) {
-            return $this->errorResponse('Missing required fields: name, email, password', 400);
+            return $this->errorResponse(
+                $this->translator->trans('user.missing_required_fields', ['%fields%' => 'name, email, password']), 
+                400
+            );
         }
 
         // Check if user already exists
@@ -40,7 +45,10 @@ class AuthController extends BaseV1Controller
             ->findOneBy(['email' => $data['email']]);
             
         if ($existingUser) {
-            return $this->errorResponse('User with this email already exists', 409);
+            return $this->errorResponse(
+                $this->translator->trans('user.email_already_exists'), 
+                409
+            );
         }
 
         // Create new user
@@ -64,7 +72,10 @@ class AuthController extends BaseV1Controller
             foreach ($errors as $error) {
                 $errorMessages[] = $error->getMessage();
             }
-            return $this->errorResponse('Validation failed: ' . implode(', ', $errorMessages), 400);
+            return $this->errorResponse(
+                $this->translator->trans('user.validation_failed', ['%errors%' => implode(', ', $errorMessages)]), 
+                400
+            );
         }
 
         // Save user
@@ -73,7 +84,7 @@ class AuthController extends BaseV1Controller
 
         return $this->json([
             'success' => true,
-            'message' => 'User registered successfully',
+            'message' => $this->translator->trans('user.registered_successfully'),
             'data' => [
                 'user' => [
                     'id' => $user->getId(),
