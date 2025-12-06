@@ -187,6 +187,7 @@ class Account
 
     public function hasBalance(string $amount): bool
     {
-        return bccomp($this->balance, $amount, 2) >= 0;
+        // Convert to float for comparison (in production, consider using bcmath extension)
+        return (float) $this->balance >= (float) $amount;
     }
 }

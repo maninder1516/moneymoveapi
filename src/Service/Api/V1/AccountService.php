@@ -121,11 +121,14 @@ class AccountService
      */
     public function addBalance(Account $account, string $amount): Account
     {
-        if (bccomp($amount, '0', 2) <= 0) {
+        if ((float) $amount <= 0) {
             throw new \InvalidArgumentException('Amount must be positive');
         }
 
-        $newBalance = bcadd($account->getBalance(), $amount, 2);
+        $currentBalance = (float) $account->getBalance();
+        $addAmount = (float) $amount;
+        $newBalance = number_format($currentBalance + $addAmount, 2, '.', '');
+        
         $account->setBalance($newBalance);
         $this->entityManager->flush();
 
@@ -137,7 +140,7 @@ class AccountService
      */
     public function subtractBalance(Account $account, string $amount): Account
     {
-        if (bccomp($amount, '0', 2) <= 0) {
+        if ((float) $amount <= 0) {
             throw new \InvalidArgumentException('Amount must be positive');
         }
 
@@ -145,7 +148,10 @@ class AccountService
             throw new InsufficientBalanceException('Insufficient account balance');
         }
 
-        $newBalance = bcsub($account->getBalance(), $amount, 2);
+        $currentBalance = (float) $account->getBalance();
+        $subtractAmount = (float) $amount;
+        $newBalance = number_format($currentBalance - $subtractAmount, 2, '.', '');
+        
         $account->setBalance($newBalance);
         $this->entityManager->flush();
 
@@ -157,7 +163,7 @@ class AccountService
      */
     public function transferMoney(Account $fromAccount, Account $toAccount, string $amount): array
     {
-        if (bccomp($amount, '0', 2) <= 0) {
+        if ((float) $amount <= 0) {
             throw new \InvalidArgumentException('Transfer amount must be positive');
         }
 
@@ -173,12 +179,23 @@ class AccountService
             $this->subtractBalance($fromAccount, $amount);
             
             // Add to destination account (handle currency conversion if needed)
+            $finalAmount = $amount;
+            $convertedAmount = null;
+            $exchangeRate = null;
+            
             if ($fromAccount->getCurrency() !== $toAccount->getCurrency()) {
-                // TODO: Implement currency conversion
-                throw new \RuntimeException('Currency conversion not yet implemented');
+                // Implement currency conversion using exchange rates
+                $conversionResult = $this->convertCurrency(
+                    $amount, 
+                    $fromAccount->getCurrency(), 
+                    $toAccount->getCurrency()
+                );
+                $finalAmount = $conversionResult['amount'];
+                $convertedAmount = $finalAmount;
+                $exchangeRate = $conversionResult['rate'];
             }
             
-            $this->addBalance($toAccount, $amount);
+            $this->addBalance($toAccount, $finalAmount);
 
             $this->entityManager->commit();
 
@@ -186,12 +203,55 @@ class AccountService
                 'from_account' => $fromAccount,
                 'to_account' => $toAccount,
                 'amount' => $amount,
-                'currency' => $fromAccount->getCurrency()
+                'converted_amount' => $convertedAmount,
+                'exchange_rate' => $exchangeRate,
+                'currency' => $fromAccount->getCurrency(),
+                'target_currency' => $toAccount->getCurrency()
             ];
         } catch (\Exception $e) {
             $this->entityManager->rollback();
             throw $e;
         }
+    }
+
+    /**
+     * Convert currency using exchange rates
+     */
+    private function convertCurrency(string $amount, string $fromCurrency, string $toCurrency): array
+    {
+        if ($fromCurrency === $toCurrency) {
+            return ['amount' => $amount, 'rate' => '1.0'];
+        }
+
+        // Get currency rate repository
+        $currencyRateRepo = $this->entityManager->getRepository('App\Entity\CurrencyRate');
+        
+        // Try direct conversion (from -> to)
+        $directRate = $currencyRateRepo->findOneBy([
+            'baseCurrency' => $fromCurrency,
+            'targetCurrency' => $toCurrency
+        ]);
+
+        if ($directRate) {
+            $rate = (float) $directRate->getRate();
+            $convertedAmount = number_format((float) $amount * $rate, 2, '.', '');
+            return ['amount' => $convertedAmount, 'rate' => (string) $rate];
+        }
+
+        // Try reverse conversion (to -> from) and invert
+        $reverseRate = $currencyRateRepo->findOneBy([
+            'baseCurrency' => $toCurrency,
+            'targetCurrency' => $fromCurrency
+        ]);
+
+        if ($reverseRate) {
+            $rate = 1.0 / (float) $reverseRate->getRate();
+            $convertedAmount = number_format((float) $amount * $rate, 2, '.', '');
+            return ['amount' => $convertedAmount, 'rate' => (string) $rate];
+        }
+
+        // If no direct or reverse rate found, throw exception
+        throw new \RuntimeException("No exchange rate found for {$fromCurrency} to {$toCurrency}");
     }
 
     /**
