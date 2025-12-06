@@ -12,6 +12,7 @@ use App\Enum\TransactionType;
 use App\Enum\LedgerEntryType;
 use App\Exception\Api\InsufficientBalanceException;
 use App\Service\AccountEncryptionService;
+use App\Service\LanguageService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 

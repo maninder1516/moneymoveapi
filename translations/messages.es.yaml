@@ -1,0 +1,28 @@
+# Spanish translations for API messages
+account:
+  not_found: "Cuenta no encontrada"
+  not_found_or_access_denied: "Cuenta no encontrada o acceso denegado"
+  not_found_with_id: "Cuenta con ID %id% no encontrada"
+  insufficient_balance: "Saldo insuficiente en la cuenta"
+  balance_cannot_be_negative: "El saldo no puede ser negativo"
+  amount_must_be_positive: "El monto debe ser positivo"
+  unsupported_currency: "Moneda no soportada: %currency%"
+  failed_to_generate_account_number: "Error al generar número de cuenta único después de múltiples intentos"
+  
+user:
+  email_already_exists: "Ya existe un usuario con este correo electrónico"
+  missing_required_fields: "Faltan campos requeridos: %fields%"
+  validation_failed: "Validación fallida: %errors%"
+  registered_successfully: "Usuario registrado exitosamente"
+  invalid_credentials: "Credenciales inválidas"
+
+transaction:
+  processing_started: "Procesamiento de transacción iniciado"
+  completed_successfully: "Transacción completada exitosamente"
+  validation_failed: "Validación fallida: %errors%"
+  
+validation:
+  to_account_required: "El número de cuenta destino es requerido"
+  from_account_required: "El número de cuenta origen es requerido"
+  amount_required: "El monto es requerido"
+  amount_invalid: "Formato de monto inválido"

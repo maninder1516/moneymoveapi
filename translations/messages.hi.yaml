@@ -1,0 +1,28 @@
+# Hindi translations for API messages
+account:
+  not_found: "खाता नहीं मिला"
+  not_found_or_access_denied: "खाता नहीं मिला या पहुंच अस्वीकृत"
+  not_found_with_id: "ID %id% के साथ खाता नहीं मिला"
+  insufficient_balance: "खाते में अपर्याप्त शेष राशि"
+  balance_cannot_be_negative: "शेष राशि नकारात्मक नहीं हो सकती"
+  amount_must_be_positive: "राशि सकारात्मक होनी चाहिए"
+  unsupported_currency: "असमर्थित मुद्रा: %currency%"
+  failed_to_generate_account_number: "कई प्रयासों के बाद अद्वितीय खाता संख्या उत्पन्न करने में विफल"
+  
+user:
+  email_already_exists: "इस ईमेल के साथ उपयोगकर्ता पहले से मौजूद है"
+  missing_required_fields: "आवश्यक फ़ील्ड गुम: %fields%"
+  validation_failed: "सत्यापन विफल: %errors%"
+  registered_successfully: "उपयोगकर्ता सफलतापूर्वक पंजीकृत"
+  invalid_credentials: "अमान्य क्रेडेंशियल"
+
+transaction:
+  processing_started: "लेनदेन प्रक्रिया शुरू"
+  completed_successfully: "लेनदेन सफलतापूर्वक पूरा हुआ"
+  validation_failed: "सत्यापन विफल: %errors%"
+  
+validation:
+  to_account_required: "गंतव्य खाता संख्या आवश्यक है"
+  from_account_required: "स्रोत खाता संख्या आवश्यक है"
+  amount_required: "राशि आवश्यक है"
+  amount_invalid: "अमान्य राशि प्रारूप"

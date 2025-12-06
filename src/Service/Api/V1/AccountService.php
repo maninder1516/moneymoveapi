@@ -13,6 +13,7 @@ use App\Service\Api\V1\TransactionService;
 use App\Exception\Api\AccountNotFoundException;
 use App\Exception\Api\InsufficientBalanceException;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AccountService
 {
@@ -20,7 +21,8 @@ class AccountService
         private readonly AccountRepository $accountRepository,
         private readonly AccountEncryptionService $encryptionService,
         private readonly EntityManagerInterface $entityManager,
-        private readonly TransactionService $transactionService
+        private readonly TransactionService $transactionService,
+        private readonly TranslatorInterface $translator
     ) {
     }
 
@@ -73,11 +75,15 @@ class AccountService
         $account = $this->accountRepository->find($accountId);
         
         if (!$account) {
-            throw new AccountNotFoundException("Account with ID {$accountId} not found");
+            throw new AccountNotFoundException(
+                $this->translator->trans('account.not_found_with_id', ['%id%' => $accountId])
+            );
         }
 
         if ($account->getUser()->getId() !== $user->getId()) {
-            throw new AccountNotFoundException("Account not found or access denied");
+            throw new AccountNotFoundException(
+                $this->translator->trans('account.not_found_or_access_denied')
+            );
         }
 
         return $account;
@@ -92,7 +98,9 @@ class AccountService
         $account = $this->accountRepository->findByAccountNumberHash($hash);
         
         if (!$account) {
-            throw new AccountNotFoundException("Account not found");
+            throw new AccountNotFoundException(
+                $this->translator->trans('account.not_found')
+            );
         }
 
         return $account;
@@ -112,7 +120,9 @@ class AccountService
     public function updateBalance(Account $account, string $newBalance): void
     {
         if (bccomp($newBalance, '0', 2) < 0) {
-            throw new \InvalidArgumentException('Balance cannot be negative');
+            throw new \InvalidArgumentException(
+                $this->translator->trans('account.balance_cannot_be_negative')
+            );
         }
 
         $account->setBalance($newBalance);
@@ -125,7 +135,9 @@ class AccountService
     public function addBalance(Account $account, string $amount): Account
     {
         if ((float) $amount <= 0) {
-            throw new \InvalidArgumentException('Amount must be positive');
+            throw new \InvalidArgumentException(
+                $this->translator->trans('account.amount_must_be_positive')
+            );
         }
 
         $currentBalance = (float) $account->getBalance();
@@ -144,11 +156,15 @@ class AccountService
     public function subtractBalance(Account $account, string $amount): Account
     {
         if ((float) $amount <= 0) {
-            throw new \InvalidArgumentException('Amount must be positive');
+            throw new \InvalidArgumentException(
+                $this->translator->trans('account.amount_must_be_positive')
+            );
         }
 
         if (!$account->hasBalance($amount)) {
-            throw new InsufficientBalanceException('Insufficient account balance');
+            throw new InsufficientBalanceException(
+                $this->translator->trans('account.insufficient_balance')
+            );
         }
 
         $currentBalance = (float) $account->getBalance();
@@ -225,7 +241,9 @@ class AccountService
             }
         }
 
-        throw new \RuntimeException('Failed to generate unique account number after multiple attempts');
+        throw new \RuntimeException(
+            $this->translator->trans('account.failed_to_generate_account_number')
+        );
     }
 
     private function validateCurrency(string $currency): void
@@ -233,7 +251,9 @@ class AccountService
         $supportedCurrencies = ['INR', 'USD', 'EUR', 'GBP'];
         
         if (!in_array(strtoupper($currency), $supportedCurrencies)) {
-            throw new \InvalidArgumentException("Unsupported currency: {$currency}");
+            throw new \InvalidArgumentException(
+                $this->translator->trans('account.unsupported_currency', ['%currency%' => $currency])
+            );
         }
     }
 }
