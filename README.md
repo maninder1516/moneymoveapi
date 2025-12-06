@@ -131,9 +131,9 @@ The API supports automatic language detection and responses in:
 - `POST /api/v1/transactions` - Create transaction
 - `GET /api/v1/transactions` - List transactions
 
-### GraphQL
-- `POST /api/v1/graphql` - GraphQL endpoint
-- `GET /api/v1/graphql/schema` - GraphQL schema
+### GraphQL (Future Scope)
+- `POST /api/v1/graphql` - GraphQL endpoint *(planned)*
+- `GET /api/v1/graphql/schema` - GraphQL schema *(planned)*
 
 ## Testing
 
