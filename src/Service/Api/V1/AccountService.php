@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Service\Api\V1;
 
 use App\Entity\Account;
+use App\Entity\Transaction;
 use App\Entity\User;
 use App\Repository\AccountRepository;
 use App\Service\AccountEncryptionService;
+use App\Service\Api\V1\TransactionService;
 use App\Exception\Api\AccountNotFoundException;
 use App\Exception\Api\InsufficientBalanceException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,7 +19,8 @@ class AccountService
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly AccountEncryptionService $encryptionService,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly TransactionService $transactionService
     ) {
     }
 
@@ -159,100 +162,27 @@ class AccountService
     }
 
     /**
-     * Transfer money between accounts
+     * Transfer money between accounts using the TransactionService
      */
     public function transferMoney(Account $fromAccount, Account $toAccount, string $amount): array
     {
-        if ((float) $amount <= 0) {
-            throw new \InvalidArgumentException('Transfer amount must be positive');
-        }
+        // Use the new TransactionService to handle the transfer
+        $transaction = $this->transactionService->processTransfer($fromAccount, $toAccount, $amount);
 
-        if (!$fromAccount->hasBalance($amount)) {
-            throw new InsufficientBalanceException('Insufficient balance in source account');
-        }
-
-        // Start transaction
-        $this->entityManager->beginTransaction();
-
-        try {
-            // Subtract from source account
-            $this->subtractBalance($fromAccount, $amount);
-            
-            // Add to destination account (handle currency conversion if needed)
-            $finalAmount = $amount;
-            $convertedAmount = null;
-            $exchangeRate = null;
-            
-            if ($fromAccount->getCurrency() !== $toAccount->getCurrency()) {
-                // Implement currency conversion using exchange rates
-                $conversionResult = $this->convertCurrency(
-                    $amount, 
-                    $fromAccount->getCurrency(), 
-                    $toAccount->getCurrency()
-                );
-                $finalAmount = $conversionResult['amount'];
-                $convertedAmount = $finalAmount;
-                $exchangeRate = $conversionResult['rate'];
-            }
-            
-            $this->addBalance($toAccount, $finalAmount);
-
-            $this->entityManager->commit();
-
-            return [
-                'from_account' => $fromAccount,
-                'to_account' => $toAccount,
-                'amount' => $amount,
-                'converted_amount' => $convertedAmount,
-                'exchange_rate' => $exchangeRate,
-                'currency' => $fromAccount->getCurrency(),
-                'target_currency' => $toAccount->getCurrency()
-            ];
-        } catch (\Exception $e) {
-            $this->entityManager->rollback();
-            throw $e;
-        }
+        return [
+            'transaction_id' => $transaction->getId(),
+            'from_account' => $fromAccount,
+            'to_account' => $toAccount,
+            'amount' => $amount,
+            'converted_amount' => $transaction->getConvertedAmount(),
+            'exchange_rate' => $transaction->getRateUsed(),
+            'currency' => $fromAccount->getCurrency(),
+            'target_currency' => $toAccount->getCurrency(),
+            'status' => $transaction->getStatus()->value
+        ];
     }
 
-    /**
-     * Convert currency using exchange rates
-     */
-    private function convertCurrency(string $amount, string $fromCurrency, string $toCurrency): array
-    {
-        if ($fromCurrency === $toCurrency) {
-            return ['amount' => $amount, 'rate' => '1.0'];
-        }
 
-        // Get currency rate repository
-        $currencyRateRepo = $this->entityManager->getRepository('App\Entity\CurrencyRate');
-        
-        // Try direct conversion (from -> to)
-        $directRate = $currencyRateRepo->findOneBy([
-            'baseCurrency' => $fromCurrency,
-            'targetCurrency' => $toCurrency
-        ]);
-
-        if ($directRate) {
-            $rate = (float) $directRate->getRate();
-            $convertedAmount = number_format((float) $amount * $rate, 2, '.', '');
-            return ['amount' => $convertedAmount, 'rate' => (string) $rate];
-        }
-
-        // Try reverse conversion (to -> from) and invert
-        $reverseRate = $currencyRateRepo->findOneBy([
-            'baseCurrency' => $toCurrency,
-            'targetCurrency' => $fromCurrency
-        ]);
-
-        if ($reverseRate) {
-            $rate = 1.0 / (float) $reverseRate->getRate();
-            $convertedAmount = number_format((float) $amount * $rate, 2, '.', '');
-            return ['amount' => $convertedAmount, 'rate' => (string) $rate];
-        }
-
-        // If no direct or reverse rate found, throw exception
-        throw new \RuntimeException("No exchange rate found for {$fromCurrency} to {$toCurrency}");
-    }
 
     /**
      * Delete account (only if balance is zero)

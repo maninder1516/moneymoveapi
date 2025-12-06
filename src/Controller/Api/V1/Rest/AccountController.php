@@ -277,10 +277,15 @@ class AccountController extends BaseV1Controller
             return $this->successResponse([
                 'message' => 'Transfer completed successfully',
                 'transfer' => [
+                    'transaction_id' => $transferResult['transaction_id'],
                     'from_account' => $fromAccount->getId(),
                     'to_account' => $toAccount->getId(),
                     'amount' => $transferDto->amount,
+                    'converted_amount' => $transferResult['converted_amount'],
+                    'exchange_rate' => $transferResult['exchange_rate'],
                     'currency' => $fromAccount->getCurrency(),
+                    'target_currency' => $transferResult['target_currency'],
+                    'status' => $transferResult['status'],
                     'note' => $transferDto->note
                 ]
             ]);
