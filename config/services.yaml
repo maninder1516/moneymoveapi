@@ -38,5 +38,20 @@ services:
         resource: '../src/Service/Api/V2/'
         tags: ['api.service.v2']
 
+    # Redis Client Configuration
+    redis.client:
+        class: Predis\Client
+        arguments:
+            - host: '%env(REDIS_HOST)%'
+              port: '%env(int:REDIS_PORT)%'
+              database: '%env(int:REDIS_DATABASE)%'
+
+    # Cache Service with Redis and Symfony Cache fallback
+    App\Service\CacheService:
+        arguments:
+            $redisClient: '@redis.client'
+            $fallbackCache: '@currency.cache'
+            $logger: '@logger'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
