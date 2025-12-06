@@ -14,3 +14,7 @@
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
 config/secrets/*/*decrypt*.php
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###

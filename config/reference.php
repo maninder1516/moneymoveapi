@@ -1259,11 +1259,6 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *     }>,
  *     role_hierarchy?: array<string, string|list<scalar|null>>,
  * }
- * @psalm-type MakerConfig = array{
- *     root_namespace?: scalar|null, // Default: "App"
- *     generate_final_classes?: bool, // Default: true
- *     generate_final_entities?: bool, // Default: false
- * }
  * @psalm-type LexikJwtAuthenticationConfig = array{
  *     public_key?: scalar|null, // The key used to sign tokens (useless for HMAC). If not set, the key will be automatically computed from the secret key. // Default: null
  *     additional_public_keys?: list<scalar|null>,
@@ -1513,6 +1508,11 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         allow_headers?: list<scalar|null>,
  *         allow_methods?: list<scalar|null>,
  *     },
+ * }
+ * @psalm-type MakerConfig = array{
+ *     root_namespace?: scalar|null, // Default: "App"
+ *     generate_final_classes?: bool, // Default: true
+ *     generate_final_entities?: bool, // Default: false
  * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
