@@ -247,7 +247,7 @@ class AccountController extends BaseV1Controller
             // Get destination account by account number
             $toAccount = $this->accountService->getAccountByNumber($transferDto->toAccountNumber);
 
-            // Log critical transfer details
+            // Log critical transfer details (ALWAYS logged - financial transaction)
             $this->logger->info('Transfer executing', [
                 'transfer_id' => $transferId,
                 'from_account' => $fromAccount->getId(),
@@ -255,7 +255,9 @@ class AccountController extends BaseV1Controller
                 'amount' => $transferDto->amount,
                 'from_currency' => $fromAccount->getCurrency(),
                 'to_currency' => $toAccount->getCurrency(),
-                'cross_currency' => $fromAccount->getCurrency() !== $toAccount->getCurrency()
+                'cross_currency' => $fromAccount->getCurrency() !== $toAccount->getCurrency(),
+                'event_type' => 'financial_transaction',
+                'compliance' => true
             ]);
 
             // Perform transfer
@@ -265,13 +267,17 @@ class AccountController extends BaseV1Controller
                 $transferDto->amount
             );
 
-            // Log successful completion with key details
+            // Log successful completion (ALWAYS logged - regulatory requirement)
             $this->logger->info('Transfer completed', [
                 'transfer_id' => $transferId,
+                'transaction_id' => $transferResult['transaction_id'],
                 'status' => 'success',
                 'amount_debited' => $transferDto->amount,
                 'amount_credited' => $transferResult['converted_amount'] ?? $transferDto->amount,
-                'exchange_rate' => $transferResult['exchange_rate'] ?? null
+                'exchange_rate' => $transferResult['exchange_rate'] ?? null,
+                'event_type' => 'financial_transaction',
+                'audit_trail' => true,
+                'compliance' => true
             ]);
 
             return $this->successResponse([

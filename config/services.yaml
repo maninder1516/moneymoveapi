@@ -38,13 +38,11 @@ services:
         resource: '../src/Service/Api/V2/'
         tags: ['api.service.v2']
 
-    # Redis Client Configuration
+    # Redis Client Configuration - Using encrypted secret
     redis.client:
         class: Predis\Client
         arguments:
-            - host: '%env(REDIS_HOST)%'
-              port: '%env(int:REDIS_PORT)%'
-              database: '%env(int:REDIS_DATABASE)%'
+            - '%env(REDIS_URL)%'
 
     # Cache Service with Redis and Symfony Cache fallback
     App\Service\CacheService:
@@ -52,6 +50,12 @@ services:
             $redisClient: '@redis.client'
             $fallbackCache: '@currency.cache'
             $logger: '@logger'
+
+    # Smart Banking Logger for Environment-Aware Logging
+    App\Service\SmartBankingLogger:
+        arguments:
+            $logger: '@logger'
+            $params: '@parameter_bag'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
