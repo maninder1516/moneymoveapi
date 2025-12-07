@@ -13,9 +13,21 @@
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
-config/secrets/*/*decrypt*.php
+
+###> symfony/secrets ###
+# Ignore all secret files but keep directory structure
+/config/secrets/dev/*
+/config/secrets/test/*
+/config/secrets/prod/*
+# Keep the .gitkeep files to maintain directory structure
+!/config/secrets/dev/.gitkeep
+!/config/secrets/test/.gitkeep
+!/config/secrets/prod/.gitkeep
+# Keep decrypt keys if they exist
+!/config/secrets/*/decrypt.private.php
+###< symfony/secrets ###
+
 ###> phpunit/phpunit ###
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
-/config/secrets/dev/
