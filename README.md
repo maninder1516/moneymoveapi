@@ -115,7 +115,16 @@ bin/console doctrine:database:create
 bin/console doctrine:migrations:migrate
 ```
 
-### 9. Load Sample Data (Optional)
+### 9. Test Database Setup (Recommended)
+
+Create and configure the test database for comprehensive testing:
+
+```bash
+bin/console doctrine:database:create --env=test
+bin/console doctrine:migrations:migrate --env=test
+```
+
+### 10. Load Sample Data (Optional)
 
 Load sample data for testing:
 
