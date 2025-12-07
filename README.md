@@ -32,13 +32,21 @@ Before installing the MoneyMove API, ensure you have the following installed:
 git clone -b development https://github.com/maninder1516/moneymoveapi.git moneymoveapi
 ```
 
-### 2. Install Dependencies
+### 2. Copy Environment File
 
 ```bash
-cd moneymoveapi && composer install
+cd moneymoveapi && cp .env.dev .env
 ```
 
-### 3. Generate Cryptographic Keys
+### 3. Install Dependencies
+
+```bash
+composer install
+```
+
+### 4. Generate Cryptographic Keys & Configure Secure Secrets
+
+**🔒 Security Best Practice**: All sensitive configuration is encrypted using Symfony's secrets management.
 
 Generate encryption keys for secure configuration storage:
 
@@ -46,7 +54,7 @@ Generate encryption keys for secure configuration storage:
 bin/console secrets:generate-keys
 ```
 
-### 4. Configure Database Connection
+### 5. Configure Database Connection
 
 Set your MySQL database connection string:
 
@@ -59,7 +67,16 @@ When prompted, enter your database URL in this format:
 mysql://username:password@127.0.0.1:3306/moneymove_db?serverVersion=8.0&charset=utf8mb4
 ```
 
-### 5. Configure Redis Connection
+**For Test Environment** (recommended for comprehensive testing):
+```bash
+bin/console secrets:set DATABASE_URL --env=test
+```
+Enter your test database URL:
+```
+mysql://username:password@127.0.0.1:3306/moneymove_test_db?serverVersion=8.0&charset=utf8mb4
+```
+
+### 6. Configure Redis Connection
 
 Set your Redis server connection:
 
@@ -72,7 +89,16 @@ When prompted, enter your Redis URL (typically):
 redis://localhost:6379
 ```
 
-### 6. Generate JWT Key Pair
+**For Test Environment** (recommended for isolated testing):
+```bash
+bin/console secrets:set REDIS_URL --env=test
+```
+Enter your test Redis URL (can be same or different instance):
+```
+redis://localhost:6379/1
+```
+
+### 7. Generate JWT Key Pair
 
 Create the cryptographic keys for JWT token authentication:
 
@@ -80,7 +106,7 @@ Create the cryptographic keys for JWT token authentication:
 bin/console lexik:jwt:generate-keypair
 ```
 
-### 7. Create Database Schema
+### 8. Create Database Schema
 
 Run the database migrations to create the required tables:
 
@@ -89,7 +115,7 @@ bin/console doctrine:database:create
 bin/console doctrine:migrations:migrate
 ```
 
-### 8. Load Sample Data (Optional)
+### 9. Load Sample Data (Optional)
 
 Load sample data for testing:
 
@@ -172,11 +198,13 @@ bin/console doctrine:schema:update --force
 
 ## Security Features
 
+- **🔐 Cryptographic Secrets Management** - All sensitive configuration (DATABASE_URL, REDIS_URL) encrypted using Symfony secrets vault for both production and test environments
 - **JWT Token Authentication** with RS256 encryption
-- **Database Field Encryption** for sensitive data
-- **Redis Session Management** with secure caching
+- **Database Field Encryption** for sensitive data (account numbers, personal information)
+- **Redis Session Management** with secure caching and isolated test environment
 - **Input Validation** with comprehensive sanitization
 - **CORS Protection** with configurable origins
+- **Environment Isolation** - Separate encrypted configurations for development, test, and production
 
 ## API Documentation
 
