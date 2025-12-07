@@ -29,7 +29,7 @@ Before installing the MoneyMove API, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone -b development https://github.com/maninder1516/moneymoveapi.git moneymoveapi
+git clone -b moneymoveapi https://github.com/maninder1516/moneymoveapi.git moneymoveapi
 ```
 
 ### 2. Copy Environment File
