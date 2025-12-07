@@ -98,6 +98,13 @@ Enter your test Redis URL (can be same or different instance):
 redis://localhost:6379/1
 ```
 
+**⚠️ Important**: After setting up your DATABASE_URL and REDIS_URL secrets, comment out the temporary entries in your `.env` file to ensure secrets take precedence:
+```bash
+# Comment out these lines in .env after secrets are configured:
+# DATABASE_URL="mysql://user:pass@127.0.0.1:3306/moneymove?serverVersion=8.0.32&charset=utf8mb4"
+# REDIS_URL="redis://127.0.0.1:6379"
+```
+
 ### 7. Generate JWT Key Pair
 
 Create the cryptographic keys for JWT token authentication:
