@@ -18,3 +18,4 @@ config/secrets/*/*decrypt*.php
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+/config/secrets/dev/
