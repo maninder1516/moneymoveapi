@@ -8,8 +8,8 @@
 #   bin/console debug:router
 
 # Import Auth routes
-auth:
-    resource: routes/auth.yaml
+# auth:
+#     resource: routes/auth.yaml
 
 # Import API v1 routes
 api_v1:

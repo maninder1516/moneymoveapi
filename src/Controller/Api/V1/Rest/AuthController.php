@@ -14,6 +14,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
 #[Route('/auth', name: 'auth_')]
 class AuthController extends BaseV1Controller
@@ -23,7 +24,8 @@ class AuthController extends BaseV1Controller
         private readonly EntityManagerInterface $entityManager,
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly ValidatorInterface $validator,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
+        private readonly JWTTokenManagerInterface $jwtManager,
     ) {
         parent::__construct($apiConfig);
     }
@@ -95,5 +97,60 @@ class AuthController extends BaseV1Controller
                 ]
             ]
         ], 201);
+    }
+
+    #[Route('/login', name: 'api_v1_auth_login', methods: ['POST'])]
+    public function login(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data || !isset($data['username'], $data['password'])) {
+            return $this->errorResponse(
+                $this->translator->trans('auth.missing_credentials'), 
+                400
+            );
+        }
+
+        // Find user by email
+        $user = $this->entityManager->getRepository(User::class)
+            ->findOneBy(['email' => $data['username']]);
+
+        if (!$user) {
+            return $this->errorResponse(
+                $this->translator->trans('auth.invalid_credentials'), 
+                401
+            );
+        }
+
+        // Verify password
+        if (!$this->passwordHasher->isPasswordValid($user, $data['password'])) {
+            return $this->errorResponse(
+                $this->translator->trans('auth.invalid_credentials'), 
+                401
+            );
+        }
+
+        // Generate JWT token
+        try {
+            $token = $this->jwtManager->create($user);
+
+            return $this->json([
+                'success' => true,
+                'message' => $this->translator->trans('auth.login_successful'),
+                'user' => [
+                    'id' => $user->getId(),
+                    'name' => $user->getName(),
+                    'email' => $user->getEmail(),
+                    'username' => $user->getActualUsername(),
+                ],
+                'token' => $token
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->errorResponse(
+                $this->translator->trans('auth.token_generation_failed') . ': ' . $e->getMessage(), 
+                500
+            );
+        }
     }
 }

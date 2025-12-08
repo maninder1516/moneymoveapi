@@ -23,8 +23,6 @@
 !/config/secrets/dev/.gitkeep
 !/config/secrets/test/.gitkeep
 !/config/secrets/prod/.gitkeep
-# Keep decrypt keys if they exist
-!/config/secrets/*/decrypt.private.php
 ###< symfony/secrets ###
 
 ###> phpunit/phpunit ###
