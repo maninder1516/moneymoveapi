@@ -124,6 +124,12 @@ Create the cryptographic keys for JWT token authentication:
 bin/console lexik:jwt:generate-keypair
 ```
 
+**Set JWT Directory Permissions**: Ensure the JWT directory is writable:
+
+```bash
+chmod -R 775 config/jwt
+```
+
 ### 8. Create Database Schema
 
 Run the database migrations to create the required tables:
@@ -171,18 +177,224 @@ The API supports automatic language detection and responses in:
 
 ## API Endpoints
 
-### Authentication
-- `POST /api/v1/auth/login` - User authentication
-- `POST /api/v1/auth/register` - User registration
+### 1. User Registration
+**Endpoint**: `POST /api/v1/auth/register` (Route: `api_v1_auth_register`)
 
-### Account Management
-- `GET /api/v1/accounts` - List user accounts
-- `GET /api/v1/accounts/{id}` - Get account details
-- `POST /api/v1/accounts` - Create new account
+**Request Example**:
+```http
+POST http://moneymoveapi.com/api/v1/auth/register
+Content-Type: application/json
 
-### Transactions
-- `POST /api/v1/transactions` - Create transaction
-- `GET /api/v1/transactions` - List transactions
+{
+    "name": "Maninder Kumar",
+    "email": "maninder1516@gmail.com",
+    "username": "maninder",
+    "password": "#Maninder@123"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+    "success": true,
+    "message": "User registered successfully",
+    "data": {
+        "user": {
+            "id": 1,
+            "name": "Maninder Kumar",
+            "email": "maninder1516@gmail.com",
+            "username": "maninder",
+            "created_at": "2025-12-08 10:30:00"
+        }
+    }
+}
+```
+
+### 2. User Authentication (Login)
+**Endpoint**: `POST /api/v1/auth/login` (Route: `api_login_check`)
+
+**Request Example 1**:
+```http
+POST http://moneymoveapi.com/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "username": "maninder@example.com",
+    "password": "#Maninder@123"
+}
+```
+
+**Request Example 2**:
+```http
+POST http://moneymoveapi.com/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "username": "john@example.com",
+    "password": "password123"
+}
+```
+
+**Response (200 OK)**:
+```json
+{
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3NjUxODE5NTQsImV4cCI6MTc2NTE4NTU1NCwicm9sZXMiOlsiUk9MRV9VU0VSIl0sInVzZXJuYW1lIjoibWFuaW5kZXJAZXhhbXBsZS5jb20ifQ..."
+}
+```
+
+### 3. Get All Users
+**Endpoint**: `GET /api/v1/users`
+
+**Request Example**:
+```http
+GET http://moneymoveapi.com/api/v1/users
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+```
+
+### 4. List User's Accounts
+**Endpoint**: `GET /api/v1/accounts` (Route: `api_v1_accounts_list`)
+
+**Request Example**:
+```http
+GET http://moneymoveapi.com/api/v1/accounts
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+```
+
+**Response (200 OK)**:
+```json
+{
+    "success": true,
+    "message": "Accounts retrieved successfully",
+    "data": {
+        "accounts": [
+            {
+                "id": 1,
+                "account_number": "ACC00011825916424",
+                "currency": "USD",
+                "account_type": "checking",
+                "balance": "1500.00",
+                "created_at": "2025-12-08T10:30:00Z"
+            }
+        ]
+    }
+}
+```
+
+### 5. Get Single Account
+**Endpoint**: `GET /api/v1/accounts/{id}` (Route: `api_v1_accounts_show`)
+
+**Request Example**:
+```http
+GET http://moneymoveapi.com/api/v1/accounts/1
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+```
+
+### 6. Create New Account
+**Endpoint**: `POST /api/v1/accounts` (Route: `api_v1_accounts_create`)
+
+**Request Example**:
+```http
+POST http://moneymoveapi.com/api/v1/accounts
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+Content-Type: application/json
+
+{
+    "currency": "GBP",
+    "accountType": "savings",
+    "initialBalance": "1000.00"
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+    "success": true,
+    "message": "Account created successfully",
+    "data": {
+        "account": {
+            "id": 2,
+            "account_number": "ACC00021825915635",
+            "currency": "GBP",
+            "account_type": "savings",
+            "balance": "1000.00",
+            "created_at": "2025-12-08T11:00:00Z"
+        }
+    }
+}
+```
+
+### 7. Delete Account
+**Endpoint**: `DELETE /api/v1/accounts/{id}` (Route: `api_v1_accounts_delete`)
+
+**Request Example**:
+```http
+DELETE http://moneymoveapi.com/api/v1/accounts/2
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+```
+
+### 8. Transfer Money
+**Endpoint**: `POST /api/v1/accounts/{fromId}/transfer` (Route: `api_v1_accounts_transfer`)
+
+#### 8A. Same-Currency Transfer
+**Request Example**:
+```http
+POST http://moneymoveapi.com/api/v1/accounts/1/transfer
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+Content-Type: application/json
+
+{
+    "to_account_number": "ACC00011825916424",
+    "amount": "50.00",
+    "note": "Monthly savings transfer"
+}
+```
+
+#### 8B. Cross-Currency Transfer (with conversion)
+**Request Example**:
+```http
+POST http://moneymoveapi.com/api/v1/accounts/2/transfer
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+Content-Type: application/json
+
+{
+    "to_account_number": "ACC00021825915635",
+    "amount": "100.00",
+    "note": "International transfer"
+}
+```
+
+**Transfer Response (200 OK)**:
+```json
+{
+    "success": true,
+    "message": "Transfer completed successfully",
+    "data": {
+        "transaction": {
+            "id": "TXN123456789",
+            "from_account": "ACC00011825916424",
+            "to_account": "ACC00021825915635",
+            "amount": "100.00",
+            "currency_from": "USD",
+            "currency_to": "GBP",
+            "conversion_rate": "0.79",
+            "converted_amount": "79.00",
+            "fee": "2.50",
+            "note": "International transfer",
+            "status": "completed",
+            "created_at": "2025-12-08T12:00:00Z"
+        }
+    }
+}
+```
+
+### 9. List Transactions
+**Endpoint**: `GET /api/v1/transactions`
+
+**Request Example**:
+```http
+GET http://moneymoveapi.com/api/v1/transactions
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+```
 
 ### GraphQL (Future Scope)
 - `POST /api/v1/graphql` - GraphQL endpoint *(planned)*
@@ -299,6 +511,69 @@ This project was developed with assistance from **GitHub Copilot** and **ChatGPT
 - **GitHub Copilot**: Primary development assistant for code generation, architecture decisions, and implementation guidance
 - **ChatGPT**: Database schema planning and architectural consultations
 - **Development Approach**: Iterative development with AI-assisted problem-solving and best practices implementation
+
+## Future Scope
+
+### 🔒 **Security Enhancements**
+
+#### IP-Based Access Control
+- **Feature**: Block API access based on IP addresses
+- **Implementation**: IP whitelist/blacklist functionality for enhanced security
+- **Benefits**: Prevent unauthorized access from specific geographical regions or known malicious IPs
+- **Configuration**: Admin dashboard for managing IP rules and exceptions
+
+### 🔢 **Account Number Generation**
+
+#### Sequential Account Numbers
+- **Current**: Account numbers generated using random numbers (e.g., `ACC00011825916424`)
+- **Future**: Implement incremental sequential account number generation
+- **Benefits**: 
+  - Better tracking and auditing capabilities
+  - Easier account number validation
+  - Compliance with banking industry standards
+- **Implementation**: Database sequence-based generation with configurable prefixes
+
+### ⚡ **Rate Limiting Configuration**
+
+#### Dynamic Rate Limiting
+- **Current**: Rate limiting configured in YAML files (static configuration)
+- **Future**: Make rate limiting configurable through API/Admin interface
+- **Features**:
+  - Per-user rate limiting
+  - Per-endpoint rate limiting
+  - Dynamic adjustment based on user tier/subscription
+  - Real-time rate limit monitoring and alerts
+- **Configuration Options**:
+  - Requests per minute/hour/day
+  - Burst allowance
+  - Penalty timeouts
+  - Whitelist for premium users
+
+### 📊 **Additional Planned Features**
+
+#### Advanced Analytics
+- Transaction pattern analysis
+- Fraud detection algorithms
+- Real-time spending insights
+- Currency exchange rate predictions
+
+#### Enhanced Multilingual Support
+- Right-to-left language support (Arabic, Hebrew)
+- Additional languages (German, Italian, Portuguese, Chinese)
+- Localized currency formatting
+- Cultural date/time formatting
+
+#### GraphQL API Complete Implementation
+- Full GraphQL schema implementation
+- Real-time subscriptions for account updates
+- Advanced querying capabilities
+- GraphQL playground integration
+
+#### Mobile SDK
+- Native iOS and Android SDKs
+- React Native wrapper
+- Flutter integration
+- Biometric authentication support
 
 ## License
 
