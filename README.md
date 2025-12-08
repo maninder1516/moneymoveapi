@@ -67,6 +67,16 @@ When prompted, enter your database URL in this format:
 mysql://username:password@127.0.0.1:3306/moneymove_db?serverVersion=8.0&charset=utf8mb4
 ```
 
+**📝 Note**: If your username, password, host, or database name contain special URI characters (`: / ? # [ ] @ ! $ & ' ( ) * + , ; =`), you must URL encode them. For example:
+- `@` symbol becomes `%40`
+- `#` symbol becomes `%23`
+- `&` symbol becomes `%26`
+
+Example with encoded password containing `@`:
+```
+mysql://user:my%40password@127.0.0.1:3306/moneymove_db?serverVersion=8.0&charset=utf8mb4
+```
+
 **For Test Environment** (recommended for comprehensive testing):
 ```bash
 bin/console secrets:set DATABASE_URL --env=test
@@ -98,12 +108,13 @@ Enter your test Redis URL (can be same or different instance):
 redis://localhost:6379/1
 ```
 
-**⚠️ Important**: After setting up your DATABASE_URL and REDIS_URL secrets, comment out the temporary entries in your `.env` file to ensure secrets take precedence:
+**⚠️ Important**: After setting up your DATABASE_URL and REDIS_URL secrets, comment out the temporary entries in **ALL environment files** (`.env`, `.env.dev`, `.env.local`, etc.) to ensure secrets take precedence:
 ```bash
-# Comment out these lines in .env after secrets are configured:
+# Comment out these lines in ALL .env* files after secrets are configured:
 # DATABASE_URL="mysql://user:pass@127.0.0.1:3306/moneymove?serverVersion=8.0.32&charset=utf8mb4"
 # REDIS_URL="redis://127.0.0.1:6379"
 ```
+**Note**: Symfony loads environment variables in order of precedence. If DATABASE_URL or REDIS_URL exist in any `.env*` file, they will override your encrypted secrets. Make sure to comment them out in all environment files.
 
 ### 7. Generate JWT Key Pair
 
