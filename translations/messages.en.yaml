@@ -16,6 +16,12 @@ user:
   registered_successfully: "User registered successfully"
   invalid_credentials: "Invalid credentials"
 
+auth:
+  missing_credentials: "Username and password are required"
+  invalid_credentials: "Invalid email or password"
+  login_successful: "Login successful"
+  token_generation_failed: "Failed to generate authentication token"
+
 transaction:
   processing_started: "Transaction processing started"
   completed_successfully: "Transaction completed successfully"
